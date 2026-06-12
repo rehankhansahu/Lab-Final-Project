@@ -1,7 +1,10 @@
 FROM php:8.2-apache
 
-# Install MySQL extensions
-RUN docker-php-ext-install pdo pdo_mysql
+# Install Linux tools and PHP extensions (Fixes the zip error)
+RUN apt-get update && apt-get install -y \
+    libzip-dev \
+    unzip \
+    && docker-php-ext-install pdo pdo_mysql zip
 
 # Enable Apache Rewrite Module
 RUN a2enmod rewrite
@@ -19,7 +22,6 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 RUN composer install --no-dev --optimize-autoloader
 
 # Set Permissions
-RUN committees=www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
 EXPOSE 80
